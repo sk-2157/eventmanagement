@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block branding %}
+
+<h1 id="head" class="text-center">
+    <i class="fas fa-home fa-2x mr-4"></i>Admin Area
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+      <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'css/all.css' %}">
+ 
+{% endblock %}

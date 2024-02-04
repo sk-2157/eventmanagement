@@ -1,0 +1,29 @@
+#header {
+    height: 50px;
+    background: #10284e;
+    color: white;
+}
+
+i {
+    color: white;
+    align-content: center;
+}
+
+#branding h1 {
+    align-items: center;
+    color: white;
+}
+
+a.link,
+a.visited {
+    color: blue;
+}
+
+div.breadcrumbs {
+    background: lightgreen;
+    color: blue;
+}
+
+div.breadcrumbs a {
+    color: black;
+}
