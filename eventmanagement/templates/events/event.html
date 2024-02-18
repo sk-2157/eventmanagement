@@ -140,10 +140,20 @@
           </button>
         </div>
         <div class="modal-body">
-          <form action="{% url 'participant' %}" method="post">
+          <form action="{% url 'participant' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="user_id" value="{{ user.id }}">
             <input type="hidden" name="event_id" value="{{ event.id }}">
+            <input type="hidden" id="capturedImageInput" name="captured_image" value="">
+
+            <div class="form-group">
+              <label for="webcamCapture" class="col-form-label">Image:</label>
+              <button id="startWebcamBtn" class="btn btn-secondary">Start Webcam</button>
+              <button id="captureWebcamBtn" class="btn btn-secondary" disabled>Capture Image</button>
+              <video class="img-fluid" id="webcamVideo" width="450" height="300" style="display: none;" autoplay></video>
+              <canvas class="img-fluid" id="webcamCanvas" style="display: none;"></canvas>
+            </div>
+
             <div class="form-group">
               <label for="event_name" class="col-form-label">Event:</label>
               <input type="text" name="event" class="form-control" value="{{ event.title }}">
@@ -156,14 +166,6 @@
               <label for="email" class="col-form-label">Email:</label>
               <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
             </div>
-            <div class="form-group">
-              <label for="phone" class="col-form-label">Phone:</label>
-              <input type="text" name="phone" class="form-control">
-            </div>
-            <div class="form-group">
-              <label for="message" class="col-form-label">Message:</label>
-              <textarea name="message" class="form-control"></textarea>
-            </div>
             <hr>
             <input type="submit" value="Send" class="btn btn-block btn-secondary">
           </form>
@@ -171,4 +173,64 @@
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var webcamVideo = document.getElementById('webcamVideo');
+        var startWebcamBtn = document.getElementById('startWebcamBtn');
+        var captureWebcamBtn = document.getElementById('captureWebcamBtn');
+        var webcamCanvas = document.getElementById('webcamCanvas');
+        var capturedImageInput = document.getElementById('capturedImageInput');
+        
+        // Reference to the media stream
+        var mediaStream;
+
+        // Start the webcam when the "Start Webcam" button is clicked
+        startWebcamBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent form submission
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    mediaStream = stream; // Save the media stream reference
+                    webcamVideo.srcObject = stream;
+                    webcamVideo.style.display = 'block';
+                    startWebcamBtn.style.display = 'none'; // Hide the button after starting the webcam
+                    captureWebcamBtn.disabled = false;
+                })
+                .catch(function (error) {
+                    console.error('Error accessing the webcam:', error);
+                });
+        });
+
+        // Capture image from the webcam when the "Capture Image" button is clicked
+        captureWebcamBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent form submission
+            webcamCanvas.width = 450;
+            webcamCanvas.height = 300;
+            webcamCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, webcamCanvas.width, webcamCanvas.height);
+
+            // Stop the media stream
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Hide the video element and display the canvas
+            webcamVideo.style.display = 'none';
+            webcamCanvas.style.display = 'block';
+
+            // Convert canvas content to base64 data URL
+            var imageDataURL = webcamCanvas.toDataURL('image/png');
+
+            // Display the captured image
+            capturedImageInput.value = imageDataURL;
+
+            // Optionally, you can display the captured image on the page
+            var capturedImage = document.createElement('img');
+            capturedImage.src = imageDataURL;
+            document.body.appendChild(capturedImage);
+        });
+    });
+</script>
+
+
+
 {% endblock %}
